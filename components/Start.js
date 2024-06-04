@@ -33,6 +33,7 @@ const StartScreen = ({ navigation }) => {
           />
           <Text style={styles.selectionText}>Choose Background Color:</Text>
           <View style={styles.colorButtonContainer}>
+            {/* Creates button for each color*/}
             {colors.map((color, index) => (
               <TouchableOpacity
                 style={[styles.colorButton, { backgroundColor: color }]}
@@ -56,6 +57,10 @@ const StartScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </ImageBackground>
+      {/*
+        Prevents keyboard of Apple devices from
+        from blocking "Chat Now" button
+      */}
       {Platform.OS === "ios" ? (
         <KeyboardAvoidingView behavior="padding" />
       ) : null}
