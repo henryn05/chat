@@ -34,11 +34,13 @@ const ChatScreen = ({ route, navigation }) => {
       }}
     />
   }
-  useEffect(() => {
+  useEffect((username) => {
+    //Starting messages with specific format
+    //when user enters chat room
     setMessages([
       {
         _id: 1,
-        text: "Hello developer",
+        text: "Hello Developer!",
         createdAt: new Date(),
         user: {
           _id: 2,
@@ -48,7 +50,7 @@ const ChatScreen = ({ route, navigation }) => {
       },
       {
         _id: 2,
-        text: "This is a system message",
+        text: "You have entered the chat",
         createdAt: new Date(),
         system: true,
       }

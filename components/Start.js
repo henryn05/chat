@@ -37,6 +37,10 @@ const StartScreen = ({ navigation }) => {
             {colors.map((color, index) => (
               <TouchableOpacity
                 style={[styles.colorButton, { backgroundColor: color }]}
+                accessible={true}
+                accessibilityLabel="Choose background color for chat room"
+                accessibilityHint="Select background color for chat room"
+                accessibilityRole="button"
                 key={index}
                 onPress={() => setBackground(color)}
               />
@@ -44,6 +48,10 @@ const StartScreen = ({ navigation }) => {
           </View>
           <TouchableOpacity
             style={styles.button}
+            accessible={true}
+            accessibilityLabel="Enter Chat Room"
+            accessibilityHint="Lets you message another person"
+            accessibilityRole="button"
             title="Enter Chat Room"
             onPress={() =>
               navigation.navigate(
