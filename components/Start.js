@@ -36,7 +36,11 @@ const StartScreen = ({ navigation }) => {
             {/* Creates button for each color*/}
             {colors.map((color, index) => (
               <TouchableOpacity
-                style={[styles.colorButton, { backgroundColor: color }]}
+                style={[
+                  styles.colorButton,
+                  {backgroundColor: color},
+                  background === color && styles.selectedColor
+                ]}
                 accessible={true}
                 accessibilityLabel="Choose background color for chat room"
                 accessibilityHint="Select background color for chat room"
@@ -126,6 +130,10 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 50 / 2,
     margin: 5,
+  },
+  selectedColor: {
+    borderColor: "#FCD95B",
+    borderWidth: 3,
   },
   selectionText: {
     fontSize: 16,
