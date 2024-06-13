@@ -9,7 +9,7 @@ import {
 
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
 
-const ChatScreen = ({ route, navigation }) => {
+const Chat = ({ route, navigation }) => {
   const [messages, setMessages] = useState([]);
   const { username, background } = route.params;
 
@@ -90,4 +90,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatScreen;
+export default Chat;

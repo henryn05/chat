@@ -12,7 +12,7 @@ import {
 
 import { useState } from "react";
 
-const StartScreen = ({ navigation }) => {
+const Start = ({ navigation }) => {
   const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"];
   const [username, setUsername] = useState("");
   const [background, setBackground] = useState("");
@@ -38,8 +38,8 @@ const StartScreen = ({ navigation }) => {
               <TouchableOpacity
                 style={[
                   styles.colorButton,
-                  {backgroundColor: color},
-                  background === color && styles.selectedColor
+                  { backgroundColor: color },
+                  background === color && styles.selectedColor,
                 ]}
                 accessible={true}
                 accessibilityLabel="Choose background color for chat room"
@@ -58,11 +58,7 @@ const StartScreen = ({ navigation }) => {
             accessibilityRole="button"
             title="Enter Chat Room"
             onPress={() =>
-              navigation.navigate(
-                "ChatScreen",
-                { username: username },
-                { background: background }
-              )
+              navigation.navigate("Chat", { username, background })
             }
           >
             <Text>Chat Now</Text>
@@ -143,4 +139,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StartScreen;
+export default Start;
