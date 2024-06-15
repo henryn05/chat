@@ -22,18 +22,20 @@ const Chat = ({ route, navigation }) => {
 
   // Custom renderBubble function to change color of messages
   const renderBubble = (props) => {
-    return <Bubble
-      {...props}
-      wrapperStyle={{
-        right: {
-          backgroundColor: "#000"
-        },
-        left: {
-          backgroundColor: "#FFF"
-        },
-      }}
-    />
-  }
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: {
+            backgroundColor: "#000",
+          },
+          left: {
+            backgroundColor: "#FFF",
+          },
+        }}
+      />
+    );
+  };
   useEffect((username) => {
     //Starting messages with specific format
     //when user enters chat room
@@ -53,7 +55,7 @@ const Chat = ({ route, navigation }) => {
         text: "You have entered the chat",
         createdAt: new Date(),
         system: true,
-      }
+      },
     ]);
   }, []);
   //

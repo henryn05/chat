@@ -2,13 +2,14 @@ import {
   StyleSheet,
   View,
   Text,
-  Button,
   TextInput,
   TouchableOpacity,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
+import { getAuth, signInAnonymously } from "firebase/auth";
 
 import { useState } from "react";
 
@@ -16,6 +17,22 @@ const Start = ({ navigation }) => {
   const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"];
   const [username, setUsername] = useState("");
   const [background, setBackground] = useState("");
+
+  const auth = getAuth();
+  const signInUser = () => {
+    signInAnonymously(auth)
+      .then((result) => {
+        navigation.navigate("Chat", {
+          userID: result.user.uid,
+          username,
+          background,
+        });
+        Alert.alert("Signed in successfully!");
+      })
+      .catch((error) => {
+        Alert.alert("Unable to sign in, try again later.");
+      });
+  };
 
   return (
     <View style={styles.container}>
@@ -57,9 +74,7 @@ const Start = ({ navigation }) => {
             accessibilityHint="Lets you message another person"
             accessibilityRole="button"
             title="Enter Chat Room"
-            onPress={() =>
-              navigation.navigate("Chat", { username, background })
-            }
+            onPress={() => {signInUser}}
           >
             <Text>Chat Now</Text>
           </TouchableOpacity>
