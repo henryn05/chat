@@ -10,7 +10,15 @@ import { getFirestore } from "firebase/firestore";
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-  const firebaseConfig = {};
+  const firebaseConfig = {
+    apiKey: "AIzaSyBtqLEOYftkORr3tUzbHqNPe8VCKqz49KM",
+    authDomain: "chat-app-72372.firebaseapp.com",
+    projectId: "chat-app-72372",
+    storageBucket: "chat-app-72372.appspot.com",
+    messagingSenderId: "680396641879",
+    appId: "1:680396641879:web:460071b55b2648e0d4b512",
+    measurementId: "G-BQ6QDHJREM",
+  };
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
 

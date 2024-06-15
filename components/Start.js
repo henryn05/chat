@@ -9,6 +9,7 @@ import {
   Platform,
   Alert,
 } from "react-native";
+
 import { getAuth, signInAnonymously } from "firebase/auth";
 
 import { useState } from "react";
@@ -21,7 +22,7 @@ const Start = ({ navigation }) => {
   const auth = getAuth();
   const signInUser = () => {
     signInAnonymously(auth)
-      .then((result) => {
+      .then(result => {
         navigation.navigate("Chat", {
           userID: result.user.uid,
           username,
