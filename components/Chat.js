@@ -21,6 +21,22 @@ const Chat = ({ route, navigation, db }) => {
   const [messages, setMessages] = useState([]);
   const { username, background, userID } = route.params;
 
+  // Lighten or darken the background color
+  const adjustColor = (color, amount) => {
+    return (
+      "#" +
+      color
+        .replace(/^#/, "")
+        .replace(/../g, (color) =>
+          (
+            "0" +
+            Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(
+              16
+            )
+          ).substr(-2)
+        )
+    );
+  };
   // Save sent messages to Firestore database
   const onSend = (newMessages) => {
     addDoc(collection(db, "messages"), newMessages[0]);
@@ -33,10 +49,10 @@ const Chat = ({ route, navigation, db }) => {
         {...props}
         wrapperStyle={{
           right: {
-            backgroundColor: "#000",
+            backgroundColor: adjustColor(background, -40),
           },
           left: {
-            backgroundColor: "#FFF",
+            backgroundColor: adjustColor(background, 60),
           },
         }}
       />
@@ -79,7 +95,7 @@ const Chat = ({ route, navigation, db }) => {
         onSend={(messages) => onSend(messages)}
         user={{
           _id: userID,
-          name: username
+          name: username,
         }}
       />
       {/*
