@@ -7,6 +7,14 @@ import {
   Platform,
 } from "react-native";
 
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+} from "firebase/firestore";
+
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
 
 const Chat = ({ route, navigation, db }) => {

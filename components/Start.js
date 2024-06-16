@@ -20,6 +20,7 @@ const Start = ({ navigation }) => {
   const [background, setBackground] = useState("");
 
   const auth = getAuth();
+  // Sign in user anonymously and returns username and background color
   const signInUser = () => {
     signInAnonymously(auth)
       .then(result => {
@@ -75,7 +76,7 @@ const Start = ({ navigation }) => {
             accessibilityHint="Lets you message another person"
             accessibilityRole="button"
             title="Enter Chat Room"
-            onPress={() => {signInUser}}
+            onPress={() => signInUser()}
           >
             <Text>Chat Now</Text>
           </TouchableOpacity>
