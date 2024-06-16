@@ -13,14 +13,12 @@ const Chat = ({ route, navigation, db }) => {
   const [messages, setMessages] = useState([]);
   const { username, background, userID } = route.params;
 
-  // Custom onSend function to display chat interface
+  // Save sent messages to Firestore database
   const onSend = (newMessages) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, newMessages)
-    );
+    addDoc(collection(db, "messages"), newMessages[0]);
   };
 
-  // Custom renderBubble function to change color of messages
+  // Custom renderBubble to change color of messages
   const renderBubble = (props) => {
     return (
       <Bubble
@@ -36,17 +34,24 @@ const Chat = ({ route, navigation, db }) => {
       />
     );
   };
+
   useEffect(() => {
+    navigation.setOptions({ title: username });
     const q = query(
       // Queries and sorts chat messages in descending order
       // based on createdAt property
-      collection(db, "Chat").orderBy("createdAt", "desc"),
-      where("uid", "==", userID)
+      collection(db, "messages"),
+      orderBy("createdAt", "desc")
     );
     const unsubChat = onSnapshot(q, (documentsShapshot) => {
+      // Appends dates of messages and message to an array
       let newMessages = [];
       documentsShapshot.forEach((doc) => {
-        newMessages.push({ id: doc.id, ...doc.data() });
+        newMessages.push({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: new Date(doc.data().createdAt.toMillis()),
+        });
       });
       setMessages(newMessages);
     });
@@ -54,10 +59,6 @@ const Chat = ({ route, navigation, db }) => {
       // Clean up code to stop listening on Chat component
       if (unsubChat) unsubChat();
     };
-  }, []);
-  //
-  useEffect(() => {
-    navigation.setOptions({ title: username });
   }, []);
 
   // Returns component with GiftedChat UI
@@ -69,7 +70,8 @@ const Chat = ({ route, navigation, db }) => {
         messages={messages}
         onSend={(messages) => onSend(messages)}
         user={{
-          _id: 1,
+          _id: userID,
+          name: username
         }}
       />
       {/*
