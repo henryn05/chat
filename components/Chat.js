@@ -15,15 +15,8 @@ import {
   addDoc,
 } from "firebase/firestore";
 
-import {
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  addDoc,
-} from "firebase/firestore";
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
 import { useEffect } from "react";
 
