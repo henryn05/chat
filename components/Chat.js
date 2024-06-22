@@ -17,8 +17,13 @@ import {
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { Bubble, GiftedChat } from "react-native-gifted-chat";
-import { useEffect } from "react";
+import {
+  Bubble,
+  InputToolbar,
+  GiftedChat,
+  Time,
+  Day,
+} from "react-native-gifted-chat";
 
 const Chat = ({ db, isConnected, route, navigation }) => {
   const [messages, setMessages] = useState([]);
@@ -26,41 +31,46 @@ const Chat = ({ db, isConnected, route, navigation }) => {
 
   let unsubChat;
   useEffect(() => {
+    navigation.setOptions({ title: username });
     // If user is online, load data from firebase
     if (isConnected === true) {
       if (unsubChat) unsubChat();
-        unsubChat = null;
-        const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
-        unsubChat = onSnapshot(q, (documentsSnapshot) => {
-          let newMessages = [];
-          documentsSnapshot.forEach(doc => {
-            newMessages.push({ id: doc.id, ...doc.data() })
+      unsubChat = null;
+      const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+      unsubChat = onSnapshot(q, (documentsSnapshot) => {
+        let newMessages = [];
+        documentsSnapshot.forEach((doc) => {
+          newMessages.push({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: new Date(doc.data().createdAt.toMillis()),
           });
-          cacheMessages(newMessages);
-          setLists(newMessages);
         });
+        cacheMessages(newMessages);
+        setMessages(newMessages);
+      });
       // If user is offline, load data from cache
     } else loadCachedMessages();
 
     // Clean up code
     return () => {
       if (unsubChat) unsubChat();
-    }
+    };
   }, [isConnected]);
 
+  // Save messages to cache (ASyncStorage)
   const cacheMessages = async (messagesToCache) => {
     try {
       await AsyncStorage.setItem("messages", JSON.stringify(messagesToCache));
     } catch (error) {
       console.log(error.message);
     }
-  }
-
+  };
+  // Load messages from cache (ASyncStorage)
   const loadCachedMessages = async () => {
-    const cacheMessages = await
-      AsyncStorage.getItem("messages") || [];
-  }
-  // Lighten or darken the background color
+    const cacheMessages = (await AsyncStorage.getItem("messages")) || [];
+  };
+  // Lighten or darken message bubble color
   const adjustColor = (color, amount) => {
     return (
       "#" +
@@ -83,46 +93,88 @@ const Chat = ({ db, isConnected, route, navigation }) => {
 
   // Custom renderBubble to change color of messages
   const renderBubble = (props) => {
+    if (background === "#090C08" || background === "#474056") {
+      return (
+        <Bubble
+          {...props}
+          wrapperStyle={{
+            right: {
+              backgroundColor: adjustColor(background, 60),
+            },
+            left: {
+              backgroundColor: adjustColor(background, 40),
+            },
+          }}
+          textStyle={{
+            right: {
+              color: "#fff",
+            },
+            left: {
+              color: "#fff",
+            },
+          }}
+        />
+      );
+    } else {
+      return (
+        <Bubble
+          {...props}
+          wrapperStyle={{
+            right: {
+              backgroundColor: adjustColor(background, -40),
+            },
+            left: {
+              backgroundColor: adjustColor(background, -20),
+            },
+          }}
+          textStyle={{
+            right: {
+              color: "#fff",
+            },
+            left: {
+              color: "#fff",
+            },
+          }}
+        />
+      );
+    }
+  };
+
+  // Custom renderInputToolbar to display input toolbar
+  // only if user is online
+  const renderInputToolbar = (props) => {
+    if (isConnected) return <InputToolbar {...props} />;
+    else return null;
+  };
+
+  // Custom renderTime to change color of time
+  const renderTime = (props) => {
     return (
-      <Bubble
+      <Time
         {...props}
-        wrapperStyle={{
+        timeTextStyle={{
           right: {
-            backgroundColor: adjustColor(background, -40),
+            color: "#fff",
           },
           left: {
-            backgroundColor: adjustColor(background, 60),
+            color: "#fff",
           },
         }}
       />
     );
   };
 
-  useEffect(() => {
-    navigation.setOptions({ title: username });
-    const q = query(
-      // Queries and sorts chat messages in descending order
-      // based on createdAt property
-      collection(db, "messages"),
-      orderBy("createdAt", "desc")
+  // Custom renderDay to change color of day
+  const renderDay = (props) => {
+    return (
+      <Day
+        {...props}
+        textStyle={{
+          color: "#fff",
+        }}
+      />
     );
-    const unsubChat = onSnapshot(q, (documentsShapshot) => {
-      // Appends dates of messages and message to an array
-      let newMessages = [];
-      documentsShapshot.forEach((doc) => {
-        newMessages.push({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: new Date(doc.data().createdAt.toMillis()),
-        });
-      });
-      setMessages(newMessages);
-    });
-    return () => {
-      // Clean up code to stop listening on Chat component
-      if (unsubChat) unsubChat();
-    };
-  }, []);
+  };
 
   // Returns component with GiftedChat UI
   return (
@@ -130,6 +182,9 @@ const Chat = ({ db, isConnected, route, navigation }) => {
       <GiftedChat
         style={styles.chatInput}
         renderBubble={renderBubble}
+        renderInputToolbar={renderInputToolbar}
+        renderTime={renderTime}
+        renderDay={renderDay}
         messages={messages}
         onSend={(messages) => onSend(messages)}
         user={{
@@ -137,16 +192,13 @@ const Chat = ({ db, isConnected, route, navigation }) => {
           name: username,
         }}
       />
-      {(isConnected === true) ?
-        <View style={styles.container}>
-        </View> :
-        null
-      }
       {/*
         Prevents keyboard of Android devices from
         from blocking text input
       */}
-      {Platform.OS === "android" ? <KeyboardAvoidingView behavior="height" /> : null}
+      {Platform.OS === "android" ? (
+        <KeyboardAvoidingView behavior="height" />
+      ) : null}
     </View>
   );
 };
