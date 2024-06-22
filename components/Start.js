@@ -13,7 +13,7 @@ import {
 import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const StartScreen = ({ navigation }) => {
+const Start = ({ navigation }) => {
   const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"];
   const [username, setUsername] = useState("");
   const [background, setBackground] = useState("");
@@ -144,4 +144,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StartScreen;
+export default Start;

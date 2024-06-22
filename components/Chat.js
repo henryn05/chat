@@ -7,12 +7,50 @@ import {
   Platform,
 } from "react-native";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
+import { useEffect } from "react";
 
-const ChatScreen = ({ route, navigation }) => {
+const Chat = ({ db, isConnected, route, navigation }) => {
   const [messages, setMessages] = useState([]);
   const { username, background } = route.params;
 
+  let unsubChat;
+  useEffect(() => {
+    // If user is online, load data from firebase
+    if (isConnected === true) {
+      if (unsubChat) unsubChat();
+        unsubChat = null;
+        const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+        unsubChat = onSnapshot(q, (documentsSnapshot) => {
+          let newMessages = [];
+          documentsSnapshot.forEach(doc => {
+            newMessages.push({ id: doc.id, ...doc.data() })
+          });
+          cacheMessages(newMessages);
+          setLists(newMessages);
+        });
+      // If user is offline, load data from cache
+    } else loadCachedMessages();
+
+    // Clean up code
+    return () => {
+      if (unsubChat) unsubChat();
+    }
+  }, [isConnected]);
+
+  const cacheMessages = async (messagesToCache) => {
+    try {
+      await AsyncStorage.setItem("messages", JSON.stringify(messagesToCache));
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  const loadCachedMessages = async () => {
+    const cacheMessages = await
+      AsyncStorage.getItem("messages") || [];
+  }
   // Custom onSend function to display chat interface
   const onSend = (newMessages) => {
     setMessages((previousMessages) =>
@@ -73,13 +111,16 @@ const ChatScreen = ({ route, navigation }) => {
           _id: 1,
         }}
       />
+      {(isConnected === true) ?
+        <View style={styles.container}>
+        </View> :
+        null
+      }
       {/*
         Prevents keyboard of Android devices from
         from blocking text input
       */}
-      {Platform.OS === "android" ? (
-        <KeyboardAvoidingView behavior="height" />
-      ) : null}
+      {Platform.OS === "android" ? <KeyboardAvoidingView behavior="height" /> : null}
     </View>
   );
 };
@@ -90,4 +131,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatScreen;
+export default Chat;
