@@ -7,13 +7,29 @@ import {
   Platform,
 } from "react-native";
 
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+} from "firebase/firestore";
+
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+} from "firebase/firestore";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
 import { useEffect } from "react";
 
 const Chat = ({ db, isConnected, route, navigation }) => {
   const [messages, setMessages] = useState([]);
-  const { username, background } = route.params;
+  const { username, background, userID } = route.params;
 
   let unsubChat;
   useEffect(() => {
@@ -51,52 +67,68 @@ const Chat = ({ db, isConnected, route, navigation }) => {
     const cacheMessages = await
       AsyncStorage.getItem("messages") || [];
   }
-  // Custom onSend function to display chat interface
+  // Lighten or darken the background color
+  const adjustColor = (color, amount) => {
+    return (
+      "#" +
+      color
+        .replace(/^#/, "")
+        .replace(/../g, (color) =>
+          (
+            "0" +
+            Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(
+              16
+            )
+          ).substr(-2)
+        )
+    );
+  };
+  // Save sent messages to Firestore database
   const onSend = (newMessages) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, newMessages)
+    addDoc(collection(db, "messages"), newMessages[0]);
+  };
+
+  // Custom renderBubble to change color of messages
+  const renderBubble = (props) => {
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: {
+            backgroundColor: adjustColor(background, -40),
+          },
+          left: {
+            backgroundColor: adjustColor(background, 60),
+          },
+        }}
+      />
     );
   };
 
-  // Custom renderBubble function to change color of messages
-  const renderBubble = (props) => {
-    return <Bubble
-      {...props}
-      wrapperStyle={{
-        right: {
-          backgroundColor: "#000"
-        },
-        left: {
-          backgroundColor: "#FFF"
-        },
-      }}
-    />
-  }
-  useEffect((username) => {
-    //Starting messages with specific format
-    //when user enters chat room
-    setMessages([
-      {
-        _id: 1,
-        text: "Hello Developer!",
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-      },
-      {
-        _id: 2,
-        text: "You have entered the chat",
-        createdAt: new Date(),
-        system: true,
-      }
-    ]);
-  }, []);
-  //
   useEffect(() => {
     navigation.setOptions({ title: username });
+    const q = query(
+      // Queries and sorts chat messages in descending order
+      // based on createdAt property
+      collection(db, "messages"),
+      orderBy("createdAt", "desc")
+    );
+    const unsubChat = onSnapshot(q, (documentsShapshot) => {
+      // Appends dates of messages and message to an array
+      let newMessages = [];
+      documentsShapshot.forEach((doc) => {
+        newMessages.push({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: new Date(doc.data().createdAt.toMillis()),
+        });
+      });
+      setMessages(newMessages);
+    });
+    return () => {
+      // Clean up code to stop listening on Chat component
+      if (unsubChat) unsubChat();
+    };
   }, []);
 
   // Returns component with GiftedChat UI
@@ -108,7 +140,8 @@ const Chat = ({ db, isConnected, route, navigation }) => {
         messages={messages}
         onSend={(messages) => onSend(messages)}
         user={{
-          _id: 1,
+          _id: userID,
+          name: username,
         }}
       />
       {(isConnected === true) ?

@@ -2,13 +2,15 @@ import {
   StyleSheet,
   View,
   Text,
-  Button,
   TextInput,
   TouchableOpacity,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
+
+import { getAuth, signInAnonymously } from "firebase/auth";
 
 import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,6 +19,23 @@ const Start = ({ navigation }) => {
   const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"];
   const [username, setUsername] = useState("");
   const [background, setBackground] = useState("");
+
+  const auth = getAuth();
+  // Sign in user anonymously and returns username and background color
+  const signInUser = () => {
+    signInAnonymously(auth)
+      .then(result => {
+        navigation.navigate("Chat", {
+          userID: result.user.uid,
+          username,
+          background,
+        });
+        Alert.alert("Signed in successfully!");
+      })
+      .catch((error) => {
+        Alert.alert("Unable to sign in, try again later.");
+      });
+  };
 
   return (
     <View style={styles.container}>
@@ -39,8 +58,8 @@ const Start = ({ navigation }) => {
               <TouchableOpacity
                 style={[
                   styles.colorButton,
-                  {backgroundColor: color},
-                  background === color && styles.selectedColor
+                  { backgroundColor: color },
+                  background === color && styles.selectedColor,
                 ]}
                 accessible={true}
                 accessibilityLabel="Choose background color for chat room"
@@ -58,13 +77,7 @@ const Start = ({ navigation }) => {
             accessibilityHint="Lets you message another person"
             accessibilityRole="button"
             title="Enter Chat Room"
-            onPress={() =>
-              navigation.navigate(
-                "ChatScreen",
-                { username: username },
-                { background: background }
-              )
-            }
+            onPress={() => signInUser()}
           >
             <Text>Chat Now</Text>
           </TouchableOpacity>
