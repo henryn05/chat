@@ -8,7 +8,13 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-const CustomActions = ({ wrapperStyle, iconTextStyle, onSend, storage, userID }) => {
+const CustomActions = ({
+  wrapperStyle,
+  iconTextStyle,
+  onSend,
+  storage,
+  userID,
+}) => {
   const actionSheet = useActionSheet();
 
   // Allows user to select 1 out of 3 actions
@@ -72,8 +78,8 @@ const CustomActions = ({ wrapperStyle, iconTextStyle, onSend, storage, userID })
 
         if (mediaLibraryPermissions?.granted)
           await MediaLibrary.saveToLibraryAsync(result.assets[0].uri);
-          const imageURI = result.assets[0].uri;
-          uploadAndSendImage(imageURI);
+        const imageURI = result.assets[0].uri;
+        uploadAndSendImage(imageURI);
       }
     }
   };
