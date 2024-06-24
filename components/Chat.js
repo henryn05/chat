@@ -7,7 +7,6 @@ import {
   Platform,
   Button,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Bubble,
   InputToolbar,
@@ -15,6 +14,8 @@ import {
   Time,
   Day,
 } from "react-native-gifted-chat";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import MapView from "react-native-maps";
 
 import {
   collection,
@@ -24,7 +25,7 @@ import {
   addDoc,
 } from "firebase/firestore";
 
-import * as ImagePicker from "expo-image-picker";
+import CustomActions from "./CustomActions";
 
 const Chat = ({ db, isConnected, route, navigation }) => {
   const [messages, setMessages] = useState([]);
@@ -61,7 +62,7 @@ const Chat = ({ db, isConnected, route, navigation }) => {
     };
   }, [isConnected]);
 
-  // Save messages to cache (AsyncStorage)
+  // Saves messages to cache (AsyncStorage)
   const cacheMessages = async (messagesToCache) => {
     try {
       await AsyncStorage.setItem("messages", JSON.stringify(messagesToCache));
@@ -69,11 +70,13 @@ const Chat = ({ db, isConnected, route, navigation }) => {
       console.log(error.message);
     }
   };
-  // Load messages from cache (AsyncStorage)
+
+  // Loads messages from cache (AsyncStorage)
   const loadCachedMessages = async () => {
     const cacheMessages = (await AsyncStorage.getItem("messages")) || [];
   };
-  // Lighten or darken message bubble color
+
+  // Lightens or darkens message bubble color
   const adjustColor = (color, amount) => {
     return (
       "#" +
@@ -89,14 +92,43 @@ const Chat = ({ db, isConnected, route, navigation }) => {
         )
     );
   };
-  // Save sent messages to Firestore database
+
+  // Saves sent messages to Firestore database
   const onSend = (newMessages) => {
     addDoc(collection(db, "messages"), newMessages[0]);
   };
 
-  // Custom renderBubble to change color of messages
+  // Displays pickImage, takePhoto, and getLocation actions
+  const renderCustomActions = (props) => {
+    return <CustomActions {...props} />;
+  }
+  // Renders mapView if messasge contains location
+  const renderCustomView = (props) => {
+    const {currentMessage} = props;
+    if (currentMessage.location) {
+      return (
+        <MapView
+          style={{
+            width: 150,
+            height: 100,
+            borderRadius: 13,
+            margin: 3
+          }}
+          region={{
+            latitude: currentMessage.location.latitude,
+            longitude: currentMessage.location.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      );
+    }
+    return null;
+  };
+  // Changes color of messages
   const renderBubble = (props) => {
     if (background === "#090C08" || background === "#474056") {
+      // Darker backgrounds have ligher messages
       return (
         <Bubble
           {...props}
@@ -119,6 +151,7 @@ const Chat = ({ db, isConnected, route, navigation }) => {
         />
       );
     } else {
+      // Lighter backgrounds have darker messages
       return (
         <Bubble
           {...props}
@@ -143,14 +176,13 @@ const Chat = ({ db, isConnected, route, navigation }) => {
     }
   };
 
-  // Custom renderInputToolbar to display input toolbar
-  // only if user is online
+  // Displays input toolbar only if user is online
   const renderInputToolbar = (props) => {
     if (isConnected) return <InputToolbar {...props} />;
     else return null;
   };
 
-  // Custom renderTime to change color of time
+  // Changes color of time
   const renderTime = (props) => {
     return (
       <Time
@@ -167,7 +199,7 @@ const Chat = ({ db, isConnected, route, navigation }) => {
     );
   };
 
-  // Custom renderDay to change color of day
+  // Changes color of day
   const renderDay = (props) => {
     return (
       <Day
@@ -184,6 +216,8 @@ const Chat = ({ db, isConnected, route, navigation }) => {
     <View style={[styles.container, { backgroundColor: background }]}>
       <GiftedChat
         style={styles.chatInput}
+        renderActions={renderCustomActions}
+        renderCustomView={renderCustomView}
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
         renderTime={renderTime}
