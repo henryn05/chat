@@ -98,7 +98,7 @@ const Chat = ({ db, isConnected, route, navigation, storage }) => {
 
   // Displays pickImage, takePhoto, and getLocation actions
   const renderCustomActions = (props) => {
-    return <CustomActions storage={storage} {...props} />;
+    return <CustomActions storage={storage} userID={userID}{...props} />;
   };
   // Renders mapView if messasge contains location
   const renderCustomView = (props) => {
