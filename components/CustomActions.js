@@ -1,9 +1,4 @@
-import {
-  TouchableOpacity,
-  View,
-  Text,
-  StyleSheet
-} from "react-native";
+import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
 
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
@@ -11,7 +6,9 @@ import * as Location from "expo-location";
 
 import { useActionSheet } from "@expo/react-native-action-sheet";
 
-const CustomActions = ({ wrapperStyle, iconTextStyle, onSend }) => {
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+const CustomActions = ({ wrapperStyle, iconTextStyle, onSend, storage, userID }) => {
   const actionSheet = useActionSheet();
 
   // Allows user to select 1 out of 3 actions
@@ -56,12 +53,9 @@ const CustomActions = ({ wrapperStyle, iconTextStyle, onSend }) => {
       // if user cancels process and doesn't pick file,
       // setImage will remain empty
       if (!result.canceled) {
-        // convert image to blob so it can be stored in Firebase Storage
         const imageURI = result.assets[0].uri;
-        const response = await fetch(imageURI);
-        const blob = await response.blob();
-      }
-      else Alert.alert("Permission to select images denied");
+        uploadAndSendImage(imageURI);
+      } else Alert.alert("Permission to select images denied");
     }
   };
 
@@ -78,10 +72,8 @@ const CustomActions = ({ wrapperStyle, iconTextStyle, onSend }) => {
 
         if (mediaLibraryPermissions?.granted)
           await MediaLibrary.saveToLibraryAsync(result.assets[0].uri);
-
-        setImage(result.assets[0]);
-      } else {
-        setImage(null);
+          const imageURI = result.assets[0].uri;
+          uploadAndSendImage(imageURI);
       }
     }
   };
@@ -107,6 +99,29 @@ const CustomActions = ({ wrapperStyle, iconTextStyle, onSend }) => {
     } else {
       Alert.alert("Permissions to read location denied");
     }
+  };
+
+  // Generates a unique reference in Firebase Storage
+  // for each image uploaded (nested inside pickImage)
+  const generateReference = (uri) => {
+    const timeStamp = new Date().getTime();
+    const imageName = uri.split("/")[uri.split("/").length - 1];
+
+    return `${userID}-${timeStamp}-${imageName}`;
+  };
+
+  // Uploads image to Firebase Storage and sends as message
+  const uploadAndSendImage = async (imageURI) => {
+    const uniqueRef = generateReference(imageURI);
+    const response = await fetch(imageURI);
+    const blob = await response.blob();
+
+    const newUploadRef = ref(storage, uniqueRef);
+    uploadBytes(newUploadRef, blob).then(async (snapshot) => {
+      console.log("File has been uploaded successfully");
+      const imageURL = await getDownloadURL(snapshot.ref);
+      onSend({ image: imageURL });
+    });
   };
 
   return (

@@ -27,10 +27,8 @@ import {
 
 import CustomActions from "./CustomActions";
 
-const Chat = ({ db, isConnected, route, navigation }) => {
+const Chat = ({ db, isConnected, route, navigation, storage }) => {
   const [messages, setMessages] = useState([]);
-  const [image, setImage] = useState(null);
-
   const { username, background, userID } = route.params;
 
   let unsubChat;
@@ -100,11 +98,11 @@ const Chat = ({ db, isConnected, route, navigation }) => {
 
   // Displays pickImage, takePhoto, and getLocation actions
   const renderCustomActions = (props) => {
-    return <CustomActions {...props} />;
-  }
+    return <CustomActions storage={storage} {...props} />;
+  };
   // Renders mapView if messasge contains location
   const renderCustomView = (props) => {
-    const {currentMessage} = props;
+    const { currentMessage } = props;
     if (currentMessage.location) {
       return (
         <MapView
@@ -112,7 +110,7 @@ const Chat = ({ db, isConnected, route, navigation }) => {
             width: 150,
             height: 100,
             borderRadius: 13,
-            margin: 3
+            margin: 3,
           }}
           region={{
             latitude: currentMessage.location.latitude,
