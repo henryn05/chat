@@ -5,7 +5,16 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
+  Button,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  Bubble,
+  InputToolbar,
+  GiftedChat,
+  Time,
+  Day,
+} from "react-native-gifted-chat";
 
 import {
   collection,
@@ -15,18 +24,12 @@ import {
   addDoc,
 } from "firebase/firestore";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-import {
-  Bubble,
-  InputToolbar,
-  GiftedChat,
-  Time,
-  Day,
-} from "react-native-gifted-chat";
+import * as ImagePicker from "expo-image-picker";
 
 const Chat = ({ db, isConnected, route, navigation }) => {
   const [messages, setMessages] = useState([]);
+  const [image, setImage] = useState(null);
+
   const { username, background, userID } = route.params;
 
   let unsubChat;
@@ -58,7 +61,7 @@ const Chat = ({ db, isConnected, route, navigation }) => {
     };
   }, [isConnected]);
 
-  // Save messages to cache (ASyncStorage)
+  // Save messages to cache (AsyncStorage)
   const cacheMessages = async (messagesToCache) => {
     try {
       await AsyncStorage.setItem("messages", JSON.stringify(messagesToCache));
@@ -66,7 +69,7 @@ const Chat = ({ db, isConnected, route, navigation }) => {
       console.log(error.message);
     }
   };
-  // Load messages from cache (ASyncStorage)
+  // Load messages from cache (AsyncStorage)
   const loadCachedMessages = async () => {
     const cacheMessages = (await AsyncStorage.getItem("messages")) || [];
   };
@@ -193,8 +196,7 @@ const Chat = ({ db, isConnected, route, navigation }) => {
         }}
       />
       {/*
-        Prevents keyboard of Android devices from
-        from blocking text input
+        Prevents Android keyboard from blocking text input
       */}
       {Platform.OS === "android" ? (
         <KeyboardAvoidingView behavior="height" />
