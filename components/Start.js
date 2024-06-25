@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Keyboard
 } from "react-native";
 
 import { getAuth, signInAnonymously } from "firebase/auth";
@@ -54,6 +55,7 @@ const Start = ({ navigation }) => {
             value={username}
             onChangeText={setUsername}
             placeholder="Your Name"
+            onSubmitEditing={() => Keyboard.dismiss()}
           />
           <Text style={styles.selectionText}>Choose Background Color:</Text>
           <View style={styles.colorButtonContainer}>
