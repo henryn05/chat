@@ -82,7 +82,6 @@ const Start = ({ navigation }) => {
             accessibilityRole="button"
             title="Enter Chat Room"
             onPress={() => signInUser()}
-            disabled={!username.trim() || !background}
           >
             <Text style={styles.buttonText}>Chat Now</Text>
           </TouchableOpacity>

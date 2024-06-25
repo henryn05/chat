@@ -212,6 +212,10 @@ const Chat = ({ db, isConnected, route, navigation, storage }) => {
   // Returns component with GiftedChat UI
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
+      <KeyboardAvoidingView
+        behaviour={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.select({ ios: 0, android: 90})}
+      />
       <GiftedChat
         style={styles.chatInput}
         renderActions={renderCustomActions}
