@@ -14,7 +14,6 @@ import {
 import { getAuth, signInAnonymously } from "firebase/auth";
 
 import { useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Start = ({ navigation }) => {
   const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"];
