@@ -6,11 +6,11 @@
 ## What Does This App Do
   Users are prompted to enter a username upon and select a background color for their chat room. Then, they can choose to enter a chat room.
 
-  ![Start Screen](/img/start-screen-screenshot)
+  ![Start Screen](./img/start-screen-screenshot)
 
   Users can choose to type in a textbox and submit a plain text message or choose to submit one of three special actions.
 
-  ![Chat Screen](/img/chat-screen-screenshot)
+  ![Chat Screen](./img/chat-screen-screenshot)
 
   The "plus" button opens up a modal that allows users to choose an image from their library, take a photo immediately through their camera, or share their location through maps.
 
