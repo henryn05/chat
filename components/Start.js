@@ -8,12 +8,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Keyboard
 } from "react-native";
 
 import { getAuth, signInAnonymously } from "firebase/auth";
 
 import { useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Start = ({ navigation }) => {
   const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"];
@@ -23,6 +23,10 @@ const Start = ({ navigation }) => {
   const auth = getAuth();
   // Sign in user anonymously and returns username and background color
   const signInUser = () => {
+    if (!username.trim() || !background) {
+      Alert.alert("Please enter a name and select a background color.");
+      return;
+    }
     signInAnonymously(auth)
       .then(result => {
         navigation.navigate("Chat", {
@@ -50,6 +54,7 @@ const Start = ({ navigation }) => {
             value={username}
             onChangeText={setUsername}
             placeholder="Your Name"
+            onSubmitEditing={() => Keyboard.dismiss()}
           />
           <Text style={styles.selectionText}>Choose Background Color:</Text>
           <View style={styles.colorButtonContainer}>
@@ -79,7 +84,7 @@ const Start = ({ navigation }) => {
             title="Enter Chat Room"
             onPress={() => signInUser()}
           >
-            <Text>Chat Now</Text>
+            <Text style={styles.buttonText}>Chat Now</Text>
           </TouchableOpacity>
         </View>
       </ImageBackground>
@@ -129,11 +134,13 @@ const styles = StyleSheet.create({
   button: {
     fontSize: 16,
     fontWieght: "600",
-    color: "white",
     backgroundColor: "#757083",
     paddingVertical: 20,
     paddingHorizontal: 40,
     marginVertical: 20,
+  },
+  buttonText: {
+    color: "#fff",
   },
   colorButtonContainer: {
     flexDirection: "row",
